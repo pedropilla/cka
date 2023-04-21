@@ -1,5 +1,17 @@
 # CKA Annotations
 
+## Pre start
+```bash
+export do='--dry-run=client -o yaml'
+export now='--grace-period 0 --force'
+export nk='-n kube-system'
+alias kaf='k apply -f '
+alias kdf='k delete -f '
+
+printf 'set expandtab\nset tabstop=2\nset shiftwidth=2\n' >> ~/.vimrc
+
+```
+
 ## Cluster Backup and restore
 ### Controlplane
 ```bash
