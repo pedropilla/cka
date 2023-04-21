@@ -1,7 +1,30 @@
 # CKA Annotations
 
+## Cluster Backup and restore
+### Controlplane
+```bash
+export ETCDCTL_API=3
+etcdctl --endpoints 127.0.0.1:2379 \ # Save backup to /var/lib/etcd-from-backup
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  snapshot save /var/lib/etcd-from-backup
+service kube-apiserver stop # If installed from packages
+etcdctl --data-dir /var/lib/etcd-from-backup \ # Restore backup to /var/lib/etcd-from-backup
+  --endpoints 127.0.0.1:2379 \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  snapshot restore etc-backup.db 
+# If installed from packages, update etcd.service data-dir to /var/lib/etcd-from-backup.
+# Otherwise, if kubeadm was used, this command will update the etcd static pod manifest and trigger the restarts
+sed 's/path: \/var\/lib\/etcd/path: \/var\/lib\/etcd-from-backup/g' /etc/kubernetes/manifests/etcd.yaml
+systemctl daemon-reload # If installed from packages
+service etcd restart # If installed from packages
+service kube-apiserver start # If installed from packages
+```
 
-## Cluster upgrade proccess (1 controlplane 1 worker)
+## Cluster Upgrade (1 controlplane 1 worker)
 ### Controlplane
 ```bash
 kubeadm upgrade plan
