@@ -1,7 +1,7 @@
 # CKA Annotations
 
 
-## Cluster upgrade proccess
+## Cluster upgrade proccess (1 controlplane 1 worker)
 ### Controlplane
 ```bash
 kubeadm upgrade plan
@@ -15,8 +15,8 @@ apt-get upgrade -y kubeadm=1.27.0-00 #Install specific version
 yum --showduplicates list kubernetes-kubeadm #Show all versions of kubeadm available
 yum install kubeadm.x86_64-1.27.0-0 #Install specific version
 
-# UPGRADE CONTROPLANE COMPONENTS (APISERVER, SCHEDULER, CONTROLLER, PROXY, CTL)
-kubeadm upgrade apply v.1.27.0
+# UPGRADE CONTROPLANE COMPONENTS (ETCD, APISERVER, SCHEDULER, CONTROLLER, PROXY, CTL)
+kubeadm upgrade apply v1.27.0
 
 # UPGRADE KUBELET
 
@@ -29,15 +29,6 @@ systemctl restart kubelet
 ```
 ### Workers
 ```bash
-# UPGRADE KUBEADM TOOL
-
-## DEBIAN
-apt-cache madison kubeadm #Show all versions of kubeadm available
-apt-get upgrade -y kubeadm=1.27.0-00 #Install specific version
-## REDHAT
-yum --showduplicates list kubernetes-kubeadm #Show all versions of kubeadm available
-yum install kubeadm.x86_64-1.27.0-0 #Install specific version
-
 # UPGRADE KUBELET
 
 ## DEBIAN
