@@ -16,20 +16,23 @@ printf 'set expandtab\nset tabstop=2\nset shiftwidth=2\n' >> ~/.vimrc
 ### Controlplane
 ```bash
 export ETCDCTL_API=3
-etcdctl --endpoints 127.0.0.1:2379 \ # Save backup to /var/lib/etcd-from-backup
+# Save backup to /var/lib/etcd-from-backup
+etcdctl --endpoints 127.0.0.1:2379 \ 
   --cert=/etc/kubernetes/pki/etcd/server.crt \
   --key=/etc/kubernetes/pki/etcd/server.key \
   --cacert=/etc/kubernetes/pki/etcd/ca.crt \
   snapshot save /var/lib/etcd-from-backup
 service kube-apiserver stop # If installed from packages
-etcdctl --data-dir /var/lib/etcd-from-backup \ # Restore backup to /var/lib/etcd-from-backup
+# Restore backup to /var/lib/etcd-from-backup
+etcdctl --data-dir /var/lib/etcd-from-backup \ 
   --endpoints 127.0.0.1:2379 \
   --cert=/etc/kubernetes/pki/etcd/server.crt \
   --key=/etc/kubernetes/pki/etcd/server.key \
   --cacert=/etc/kubernetes/pki/etcd/ca.crt \
-  snapshot restore etc-backup.db 
-# If installed from packages, update etcd.service data-dir to /var/lib/etcd-from-backup.
-# Otherwise, if kubeadm was used, this command will update the etcd static pod manifest and trigger the restarts
+  snapshot restore /var/lib/etcd-from-backup
+# If installed from packages, update etcd.service data-dir to /var/lib/etcd-from-backup with this sed command.
+sed -E 's/--data-dir=.*?\ /--data-dir=\/var\/lib\/etcd-from-backup/g' /etc/systemd/system/etcd.service
+# Otherwise, if kubeadm was used, this sed command will update the etcd static pod manifest and trigger the restarts.
 sed 's/path: \/var\/lib\/etcd/path: \/var\/lib\/etcd-from-backup/g' /etc/kubernetes/manifests/etcd.yaml
 systemctl daemon-reload # If installed from packages
 service etcd restart # If installed from packages
@@ -74,3 +77,11 @@ yum install kubelet.x86_64-1.27.0-0
 kubeadm upgrade node config --kubelet-version v1.27.0
 systemctl restart kubelet
 ```
+
+## Rollouts and rollbacks
+```bash
+kubectl rollout status deployment/app
+kubectl rollout history deployment/app
+kubectl rollout undo deployment/app
+```
+
